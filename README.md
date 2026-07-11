@@ -124,7 +124,7 @@ Mass recruiters hire in volume around ~10 LPA; product-based companies hire far 
 
 ---
 
-## 📊 Dashboard Features (Power BI) 🟡 In Progress
+## 📊 Dashboard Features (Power BI) 
 
 A single, all-in-one dashboard covering the full placement story:
 
@@ -171,7 +171,7 @@ Both trained models (`placement_model.pkl`, `salary_model.pkl`) are deployed as 
 | Step 1: Data Cleaning (Python) | ✅ Done |
 | Step 2: Exploratory Data Analysis (EDA) | ✅ Done |
 | Step 3: SQL Analysis & Schema | ✅ Done |
-| Step 4: Power BI Dashboard | 🟡 In Progress |
+| Step 4: Power BI Dashboard | ✅ Done |
 | Step 5: ML — Placement Prediction | ✅ Done |
 | Step 5: ML — Salary Prediction | ✅ Done |
 | Business Insights Report | ✅ Done |
@@ -192,13 +192,13 @@ Both trained models (`placement_model.pkl`, `salary_model.pkl`) are deployed as 
  ┃ ┣ 📜 cleaning.sql
  ┃ ┣ 📜 queries.sql
  ┃ ┣ 📜 views.sql
- ┃ ┗ 📜 procedureandTrigeerEG.sql
  ┣ 📂 notebooks/
  ┃ ┣ 📓 data_cleaning.ipynb
  ┃ ┣ 📓 eda.ipynb
  ┃ ┗ 📓 model_training.ipynb
  ┣ 📂 powerbi/
- ┃ ┗ 📊 Placement_Dashboard.pbix
+ ┃ ┗ 📊 Dashboard_Documentation
+ ┃ ┗ ScreenRecording_Dashboard
  ┣ 📂 models/
  ┃ ┣ 🤖 placement_model.pkl
  ┃ ┗ 🤖 salary_model.pkl
