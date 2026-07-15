@@ -24,9 +24,6 @@ This project turns raw placement data into a practical analytics product. It com
 ---
 
 ## 📌 Business Problem
-
-The placement cell needs a faster way to answer:
-
 - Which branches are performing best?
 - Which recruiters hire the most students?
 - Which students need early intervention?
@@ -118,13 +115,6 @@ Existing assets in the repo:
 - `Screen Shots (sql,visualizations)/`
 - `PowerBI/`
 
-Use them to showcase:
-
-- SQL query results
-- Power BI executive dashboard
-- Placement charts
-- Streamlit prediction screen
-
 ---
 
 ## 📈 Dashboard
@@ -150,11 +140,6 @@ The Streamlit app also includes:
 ---
 
 ## 🗃️ SQL Analysis
-
-Recruiters love SQL because it shows practical analytics thinking.
-
-### Example analyses
-
 - Top 10 companies hiring
 - Branch with highest package
 - Average CGPA by company
@@ -219,19 +204,9 @@ Recruiters love SQL because it shows practical analytics thinking.
 
 ## 🎯 Student Risk Score
 
-Instead of only showing:
-
-- Placed
-- Not Placed
-
-The project also shows:
-
 - Employability Score
 - Placement Risk
 - Recommendation
-
-This turns the app into decision support, not just prediction.
-
 ---
 
 ## 🧠 SHAP Explainability
@@ -243,9 +218,6 @@ The app explains the main factors behind a prediction, such as:
 - Communication `+12%`
 - Coding `-8%`
 - Projects `-10%`
-
-This makes the output easier to trust and discuss.
-
 ---
 
 ## ✅ Results
@@ -274,20 +246,6 @@ This makes the output easier to trust and discuss.
 - Product-based companies pay more than mass recruiters, but hire fewer students.
 - Certifications add measurable value for students with limited experience.
 - Employability score is one of the strongest separators between placed and unplaced students.
-
----
-
-## 🧾 Project Progress Checklist
-
-| Stage | Status |
-|---|---|
-| Step 1: Data Cleaning (Python) | Done |
-| Step 2: Exploratory Data Analysis (EDA) | Done |
-| Step 3: SQL Analysis & Schema | Done |
-| Step 4: Power BI Dashboard | Done |
-| Step 5: ML - Placement Prediction | Done |
-| Step 6: ML - Salary Prediction | Done |
-| Business Insights Report | Done |
 
 ---
 
@@ -322,10 +280,6 @@ Placement-Prediction-College-Analytics
 The project can be tested or deployed with:
 
 - Streamlit
-- Render
-- Azure
-- Hugging Face Spaces
-
 ---
 
 ## 🚀 Future Scope
