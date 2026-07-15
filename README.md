@@ -9,9 +9,9 @@
 ![Python](https://img.shields.io/badge/Python-Pandas%20%7C%20Sklearn-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![SQL](https://img.shields.io/badge/SQL-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
-![Status](https://img.shields.io/badge/Status-Partially%20Complete-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Complete-yellow?style=for-the-badge)
 
-### 🌟 [Live Demo - Try the Prediction App](https://placement-prediction-college-analytics-j7evnb2vmmmjxmnc6g4fdq.streamlit.app/)
+### 🌟 [Live Demo - Try the Prediction App(click on the button)](https://placement-prediction-college-analytics-j7evnb2vmmmjxmnc6g4fdq.streamlit.app/)
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://placement-prediction-college-analytics-j7evnb2vmmmjxmnc6g4fdq.streamlit.app/)
 
@@ -24,9 +24,6 @@ This project turns raw placement data into a practical analytics product. It com
 ---
 
 ## 📌 Business Problem
-
-The placement cell needs a faster way to answer:
-
 - Which branches are performing best?
 - Which recruiters hire the most students?
 - Which students need early intervention?
@@ -117,6 +114,8 @@ Existing assets in the repo:
 
 - `Screen Shots (sql,visualizations)/`
 - `PowerBI/`
+
+
 ---
 
 ## 📈 Dashboard
@@ -142,11 +141,6 @@ The Streamlit app also includes:
 ---
 
 ## 🗃️ SQL Analysis
-
-Recruiters love SQL because it shows practical analytics thinking.
-
-### Example analyses
-
 - Top 10 companies hiring
 - Branch with highest package
 - Average CGPA by company
@@ -211,32 +205,22 @@ Recruiters love SQL because it shows practical analytics thinking.
 
 ## 🎯 Student Risk Score
 
-Instead of only showing:
-
-- Placed
-- Not Placed
-
-The project also shows:
-
 - Employability Score
 - Placement Risk
 - Recommendation
-
-This turns the app into decision support, not just prediction.
-
 ---
 
 ## 🧠 SHAP Explainability
 
 The app explains the main factors behind a prediction, such as:
 
-- CGPA
-- Internship
-- Communication
-- Coding
-- Projects
+- CGPA `+18%`
+- Internship `+15%`
+- Communication `+12%`
+- Coding `-8%`
+- Projects `-10%`
 
-This makes the output easier to trust and discuss.
+T
 
 ---
 
@@ -300,6 +284,7 @@ Placement-Prediction-College-Analytics
 The project can be tested or deployed with:
 
 - Streamlit
+
 
 ---
 
