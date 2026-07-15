@@ -227,6 +227,7 @@ def train_models(df):
     print(f"==> Best Placement Model Selected: {best_name} with Accuracy: {best_acc:.4f}")
     
     # Save best classification pipeline
+    #heh
     model_path = 'models/placement_model.pkl'
     with open(model_path, 'wb') as f:
         pickle.dump(best_pipeline, f)
