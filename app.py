@@ -1,6 +1,7 @@
 import json
 import os
 import pickle
+import sqlite3
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -566,6 +567,97 @@ def load_executive_marts():
     return payload
 
 
+SQL_QUERY_LIBRARY = {
+    "Top 10 companies hiring": """
+SELECT company_name,
+       COUNT(*) AS hires,
+       ROUND(AVG(package_lpa), 2) AS avg_package
+FROM placement_clean_raw
+WHERE placement_status = 'Placed'
+GROUP BY company_name
+ORDER BY hires DESC, avg_package DESC
+LIMIT 10;
+""",
+    "Branch with highest package": """
+SELECT branch,
+       ROUND(MAX(package_lpa), 2) AS highest_package
+FROM placement_clean_raw
+WHERE placement_status = 'Placed'
+GROUP BY branch
+ORDER BY highest_package DESC
+LIMIT 1;
+""",
+    "Average CGPA by company": """
+SELECT company_name,
+       ROUND(AVG(cgpa), 2) AS avg_cgpa,
+       COUNT(*) AS hires
+FROM placement_clean_raw
+WHERE placement_status = 'Placed'
+GROUP BY company_name
+ORDER BY avg_cgpa DESC;
+""",
+    "Students with internship but no placement": """
+SELECT student_id,
+       branch,
+       cgpa,
+       internships,
+       placement_risk_score,
+       student_intervention
+FROM placement_clean_raw
+WHERE internship_status = 'Yes'
+  AND placement_status = 'Not Placed'
+ORDER BY placement_risk_score DESC;
+""",
+    "Placement rate by gender": """
+SELECT gender,
+       COUNT(*) AS total_students,
+       SUM(CASE WHEN placement_status = 'Placed' THEN 1 ELSE 0 END) AS placed_students,
+       ROUND(SUM(CASE WHEN placement_status = 'Placed' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS placement_rate_pct
+FROM placement_clean_raw
+GROUP BY gender;
+""",
+    "Package distribution": """
+SELECT CASE
+           WHEN package_lpa = 0 THEN 'Not Placed'
+           WHEN package_lpa < 6 THEN '3-6 LPA'
+           WHEN package_lpa < 9 THEN '6-9 LPA'
+           WHEN package_lpa < 12 THEN '9-12 LPA'
+           ELSE '12+ LPA'
+       END AS package_band,
+       COUNT(*) AS students
+FROM placement_clean_raw
+GROUP BY package_band
+ORDER BY students DESC;
+""",
+    "Students requiring intervention": """
+SELECT student_id,
+       branch,
+       cgpa,
+       backlogs,
+       placement_risk_score,
+       risk_band,
+       student_intervention
+FROM placement_clean_raw
+WHERE risk_band = 'High'
+ORDER BY placement_risk_score DESC;
+""",
+}
+
+
+def build_sql_connection(df: pd.DataFrame) -> sqlite3.Connection:
+    conn = sqlite3.connect(":memory:")
+    df.to_sql("placement_clean_raw", conn, index=False, if_exists="replace")
+    return conn
+
+
+def run_sql_query(df: pd.DataFrame, query: str) -> pd.DataFrame:
+    conn = build_sql_connection(df)
+    try:
+        return pd.read_sql_query(query, conn)
+    finally:
+        conn.close()
+
+
 st.markdown(
     """
     <div class="hero-wrap">
@@ -642,6 +734,39 @@ st.markdown(
         <div class="quick-item"><div class="k">Placed</div><div class="v">{int((df_clean['placement_status'] == 'Placed').sum()):,}</div></div>
         <div class="quick-item"><div class="k">Branches</div><div class="v">{df_clean['branch'].nunique()}</div></div>
         <div class="quick-item"><div class="k">Top package</div><div class="v">{df_clean['package_lpa'].max():.2f}</div></div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+top_branch_row = (
+    df_clean.groupby("branch", as_index=False)
+    .agg(placement_rate=("placement_status", lambda s: (s == "Placed").mean() * 100))
+    .sort_values("placement_rate", ascending=False)
+    .iloc[0]
+)
+top_recruiter_row = (
+    df_clean[df_clean["placement_status"] == "Placed"]
+    .groupby("company_name", as_index=False)
+    .agg(hires=("student_id", "count"))
+    .sort_values("hires", ascending=False)
+    .iloc[0]
+)
+
+st.markdown(
+    f"""
+    <div class="glass-card" style="margin-bottom: 1rem;">
+        <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:center;">
+            <div>
+                <div class="section-title" style="margin-bottom:0.2rem;">Executive Snapshot</div>
+                <div class="subtle-copy">A quick view of the strongest placement signals in the current dataset.</div>
+            </div>
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+                <div class="quick-item"><div class="k">Top branch</div><div class="v" style="font-size:1rem;">{top_branch_row['branch']}</div></div>
+                <div class="quick-item"><div class="k">Best placement rate</div><div class="v" style="font-size:1rem;">{top_branch_row['placement_rate']:.1f}%</div></div>
+                <div class="quick-item"><div class="k">Top recruiter</div><div class="v" style="font-size:1rem;">{top_recruiter_row['company_name']}</div></div>
+            </div>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -1152,86 +1277,55 @@ with tab_analytics:
 with tab_sql:
     st.markdown("<div class='section-title'>SQL Analysis</div>", unsafe_allow_html=True)
     st.markdown(
-        "<div class='subtle-copy'>Recruiters love SQL because it shows how well you can model, summarize, and investigate data.</div>",
+        "<div class='subtle-copy'>Select a query, run it against the cleaned dataset, and inspect the result like a real analytics workspace.</div>",
         unsafe_allow_html=True,
     )
 
-    sql_col1, sql_col2 = st.columns([1.1, 0.9], gap="large")
+    sql_col1, sql_col2 = st.columns([1.05, 0.95], gap="large")
     with sql_col1:
-        st.markdown("#### Example SQL Questions")
-        queries = {
-            "Top 10 companies hiring": """
-SELECT company_name, COUNT(*) AS hires, ROUND(AVG(package_lpa), 2) AS avg_package
-FROM placement_clean_raw
-WHERE placement_status = 'Placed'
-GROUP BY company_name
-ORDER BY hires DESC
-LIMIT 10;
-""",
-            "Branch with highest package": """
-SELECT branch, MAX(package_lpa) AS highest_package
-FROM placement_clean_raw
-WHERE placement_status = 'Placed'
-GROUP BY branch
-ORDER BY highest_package DESC
-LIMIT 1;
-""",
-            "Average CGPA by company": """
-SELECT company_name, ROUND(AVG(cgpa), 2) AS avg_cgpa
-FROM placement_clean_raw
-WHERE placement_status = 'Placed'
-GROUP BY company_name
-ORDER BY avg_cgpa DESC;
-""",
-            "Placement rate by gender": """
-SELECT gender,
-       COUNT(*) AS total_students,
-       SUM(placement_status = 'Placed') AS placed_students,
-       ROUND(SUM(placement_status = 'Placed') / COUNT(*) * 100, 2) AS placement_rate_pct
-FROM placement_clean_raw
-GROUP BY gender;
-""",
-        }
-        for title, sql in queries.items():
-            with st.expander(title, expanded=False):
-                st.code(sql, language="sql")
+        st.markdown("#### SQL Query Runner")
+        selected_query = st.selectbox("Choose a query", list(SQL_QUERY_LIBRARY.keys()))
+        editable_query = st.text_area("Edit query", value=SQL_QUERY_LIBRARY[selected_query], height=220)
+        run_query = st.button("Run SQL Query", type="primary", use_container_width=True)
 
     with sql_col2:
-        st.markdown("#### SQL-style Results")
-        top_companies = (
-            placed_only.groupby("company_name", as_index=False)
-            .agg(hires=("student_id", "count"), avg_package=("package_lpa", "mean"))
-            .sort_values("hires", ascending=False)
-            .head(10)
-        )
-        st.dataframe(top_companies, use_container_width=True, hide_index=True)
-
-        st.markdown("**Students with internship but no placement**")
-        internship_unplaced = filtered[
-            (filtered["internship_status"] == "Yes") & (filtered["placement_status"] == "Not Placed")
-        ].sort_values("placement_risk_score", ascending=False)
-        st.dataframe(internship_unplaced[["student_id", "branch", "cgpa", "placement_risk_score", "student_intervention"]].head(20),
-                     use_container_width=True, hide_index=True)
-
-        st.markdown("**Students requiring intervention**")
-        intervention_df = filtered.sort_values("placement_risk_score", ascending=False)
-        st.dataframe(
-            intervention_df[["student_id", "branch", "cgpa", "backlogs", "placement_risk_score", "risk_band", "student_intervention"]].head(20),
-            use_container_width=True,
-            hide_index=True,
+        st.markdown("#### What this runner shows")
+        st.markdown(
+            """
+            <div class="glass-card">
+                <div class="insight-box">Top 10 companies hiring</div>
+                <div class="insight-box">Branch with highest package</div>
+                <div class="insight-box">Average CGPA by company</div>
+                <div class="insight-box">Students with internship but no placement</div>
+                <div class="insight-box">Placement rate by gender</div>
+                <div class="insight-box">Package distribution</div>
+                <div class="insight-box">Students requiring intervention</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-    st.markdown("#### Package Distribution")
-    package_bins = pd.cut(
-        placed_only["package_lpa"],
-        bins=[0, 6, 9, 12, 20],
-        labels=["3-6 LPA", "6-9 LPA", "9-12 LPA", "12+ LPA"],
-        include_lowest=True,
-    )
-    package_dist = package_bins.value_counts().reset_index()
-    package_dist.columns = ["Package Band", "Students"]
-    package_fig = px.bar(package_dist, x="Package Band", y="Students", color="Students", text="Students")
-    st.plotly_chart(make_plotly_theme(package_fig, height=300), use_container_width=True)
+    if run_query:
+        try:
+            result_df = run_sql_query(df_clean, editable_query)
+            st.markdown("#### Query Result")
+            st.dataframe(result_df, use_container_width=True, hide_index=True)
+
+            if not result_df.empty:
+                numeric_cols = result_df.select_dtypes(include="number").columns.tolist()
+                if numeric_cols:
+                    chart_col = numeric_cols[0]
+                    chart_fig = px.bar(result_df.head(12), x=result_df.columns[0], y=chart_col, color=chart_col)
+                    st.markdown("#### Quick Visual")
+                    st.plotly_chart(make_plotly_theme(chart_fig, height=320), use_container_width=True)
+        except Exception as exc:
+            st.error(f"SQL query failed: {exc}")
+    else:
+        st.markdown("#### Preview")
+        st.code(editable_query, language="sql")
+
+        preview_df = run_sql_query(df_clean, SQL_QUERY_LIBRARY[selected_query])
+        st.dataframe(preview_df.head(10), use_container_width=True, hide_index=True)
 
 
 with tab_department:

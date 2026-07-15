@@ -117,14 +117,6 @@ Existing assets in the repo:
 
 - `Screen Shots (sql,visualizations)/`
 - `PowerBI/`
-
-Use them to showcase:
-
-- SQL query results
-- Power BI executive dashboard
-- Placement charts
-- Streamlit prediction screen
-
 ---
 
 ## 📈 Dashboard
@@ -238,11 +230,11 @@ This turns the app into decision support, not just prediction.
 
 The app explains the main factors behind a prediction, such as:
 
-- CGPA `+18%`
-- Internship `+15%`
-- Communication `+12%`
-- Coding `-8%`
-- Projects `-10%`
+- CGPA
+- Internship
+- Communication
+- Coding
+- Projects
 
 This makes the output easier to trust and discuss.
 
@@ -277,20 +269,6 @@ This makes the output easier to trust and discuss.
 
 ---
 
-## 🧾 Project Progress Checklist
-
-| Stage | Status |
-|---|---|
-| Step 1: Data Cleaning (Python) | Done |
-| Step 2: Exploratory Data Analysis (EDA) | Done |
-| Step 3: SQL Analysis & Schema | Done |
-| Step 4: Power BI Dashboard | Done |
-| Step 5: ML - Placement Prediction | Done |
-| Step 6: ML - Salary Prediction | Done |
-| Business Insights Report | Done |
-
----
-
 ## 🗂️ Project Structure
 
 ```text
@@ -322,9 +300,6 @@ Placement-Prediction-College-Analytics
 The project can be tested or deployed with:
 
 - Streamlit
-- Render
-- Azure
-- Hugging Face Spaces
 
 ---
 
@@ -347,3 +322,4 @@ The project can be tested or deployed with:
 ---
 
 > Disclaimer: Predictions from this project are for educational and analytical purposes only. They do not guarantee actual placement outcomes.
+
