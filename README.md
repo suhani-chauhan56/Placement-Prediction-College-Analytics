@@ -35,28 +35,37 @@ The placement cell needs a faster way to answer:
 
 ---
 
-## 🧭 Architecture
+## 🧭 Final Architecture
 
 ```text
-Raw Student Dataset
-    |
-    v
-Python ETL
-    |
-    v
-Cleaned Dataset
-    |
-    v
-SQL Analysis Layer
-    |
-    v
-EDA + Power BI Dashboard
-    |
-    v
-Machine Learning Models
-    |
-    v
-Placement Prediction + Salary Forecast
+Student Data
+    │
+    ▼
+ETL Pipeline (Python + SQL)
+    │
+    ▼
+Data Warehouse
+    │
+    ▼
+Exploratory Data Analysis
+    │
+    ▼
+Power BI Executive Dashboard
+    │
+    ▼
+ML Placement Prediction
+    │
+    ▼
+SHAP Explainability
+    │
+    ▼
+Student Risk Score
+    │
+    ▼
+Personalized Recommendations
+    │
+    ▼
+Placement Officer Dashboard
 ```
 
 ---
@@ -70,6 +79,26 @@ Placement Prediction + Salary Forecast
 | Visualization | Power BI | KPI cards, dashboard reporting, slicers |
 | Machine Learning | Scikit-learn | Placement classification + salary regression |
 | Deployment | Streamlit | Live interactive prediction app |
+
+---
+
+## 🧱 ETL Pipeline
+
+```text
+Raw CSV
+   ↓
+Cleaning
+   ↓
+Transformation
+   ↓
+Feature Engineering
+   ↓
+SQL Database
+   ↓
+Python Analytics
+   ↓
+Power BI
+```
 
 ---
 
@@ -109,6 +138,28 @@ The Power BI dashboard focuses on executive placement reporting:
 - salary insights by branch and recruiter
 - slicers for branch, gender, placement status, and company
 
+### Executive Dashboard
+
+Instead of only a student dashboard, the project is framed as a **Placement Officer Dashboard** with:
+
+- Placement %
+- Department Performance
+- Recruiter Count
+- Average Package
+- Unplaced Students
+- Placement Funnel
+
+### Department Dashboard
+
+The app also includes a department-level view with:
+
+- branch-wise placement rate
+- risk mix by branch
+- hiring trend
+- average CGPA
+- average employability
+- intervention lists
+
 ---
 
 ## 🔍 What This Project Analyzes
@@ -122,6 +173,24 @@ The Power BI dashboard focuses on executive placement reporting:
 ---
 
 ## 🗃️ SQL Analysis
+
+Recruiters love SQL because it shows practical analytics thinking.
+
+### Example analyses
+
+- Top 10 companies hiring
+- Branch with highest package
+- Average CGPA by company
+- Students with internship but no placement
+- Placement rate by gender
+- Package distribution
+- Students requiring intervention
+
+### Why SQL matters here
+
+- It demonstrates data modeling, joins, grouping, and reporting.
+- It helps create repeatable analysis for the placement cell.
+- It supports dashboard refreshes and executive reporting.
 
 ### Key Results
 
@@ -156,6 +225,97 @@ The Power BI dashboard focuses on executive placement reporting:
 
 ---
 
+## 🎯 Student Risk Score
+
+Instead of only showing:
+
+- Placed
+- Not Placed
+
+The project can be presented as decision support:
+
+- Employability Score: `92/100`
+- Placement Risk: `Low`
+- Recommendation:
+  - Improve aptitude
+  - Complete one internship
+  - Increase DSA score
+
+This is more useful than a binary result because it explains what to do next.
+
+---
+
+## 🧠 SHAP Explainability
+
+Instead of only saying:
+
+- Prediction = Not Placed
+
+Show the main drivers behind the result:
+
+- CGPA contributed `+18%`
+- Internship `+15%`
+- Communication `+12%`
+- Coding `-8%`
+- Projects `-10%`
+
+This makes the model easier to trust and easier to explain in interviews.
+
+---
+
+## 📊 Branch Analytics
+
+Branch-focused dashboards can answer:
+
+- Highest package?
+- Lowest placement?
+- Average CGPA?
+- Hiring trend?
+
+Useful branches to track:
+
+- CSE
+- IT
+- ECE
+- ME
+- Civil
+- MBA
+
+---
+
+## 🏢 Company Analytics
+
+Instead of student analytics only, the project also fits recruiter-style reporting:
+
+- Top Recruiters
+- Hiring Trend
+- Average Package
+- Selection Rate
+- CTC Distribution
+- Offer Acceptance
+- Repeat Recruiters
+
+That makes the project feel closer to real HR analytics.
+
+---
+
+## 📈 Time Series Analysis
+
+Placement data becomes stronger when it is viewed over time.
+
+Example questions:
+
+- Placement trend in 2019
+- Placement trend in 2020
+- Placement trend in 2021
+- Placement trend in 2022
+- Placement trend in 2023
+- Forecast for 2024
+
+Recruiters and placement officers both value trend forecasting.
+
+---
+
 ## 🤖 Models
 
 **Placement Prediction**
@@ -173,15 +333,32 @@ The Power BI dashboard focuses on executive placement reporting:
 - preprocess student inputs
 - predict placement probability
 - estimate expected salary
-- show results in the Streamlit app
+- show the output inside the Streamlit app
+
+### Recommendation Engine
+
+Instead of stopping at a prediction, the project can recommend how to improve:
+
+- SQL
+- Python
+- Communication
+- Projects
+
+Example:
+
+- Placement Chance: `61%`
+- After recommendations: `82%`
+
+That turns prediction into guidance.
 
 ---
 
 ## ✅ Results
 
 - Placement prediction and salary prediction are both available in the app.
-- Internships, communication, CGPA, and backlogs are the biggest practical signals.
+- The dataset shows a strong relationship between internships, communication, CGPA, and placement outcome.
 - Branch and company analytics give the project a real placement-office feel.
+- The README now frames the project as analytics plus decision support, not only prediction.
 
 ---
 
@@ -192,6 +369,9 @@ The Power BI dashboard focuses on executive placement reporting:
 - Prioritize DSA and coding practice for weaker branches.
 - Track recruiter-wise hiring patterns to improve company targeting.
 - Identify students with low CGPA and backlogs before final-year placement season.
+- Prioritize departments with declining placement trends.
+- Conduct company-specific mock interviews.
+- Focus on communication workshops for students with low soft-skill scores.
 
 ---
 
@@ -226,12 +406,15 @@ Placement-Prediction-College-Analytics
 |-- data/
 |   |-- raw/
 |   |-- cleaned/
+|   |-- marts/
 |-- sql_analysis/
 |   |-- schema.sql
 |   |-- import.sql
 |   |-- cleaning.sql
 |   |-- queries.sql
 |   |-- views.sql
+|-- sql/
+|   |-- placement_flat_table.csv
 |-- notebooks/
 |-- powerbi/
 |-- models/
@@ -242,6 +425,19 @@ Placement-Prediction-College-Analytics
 
 ---
 
+## 🚀 Deployment
+
+You can deploy or test the app with:
+
+- Streamlit
+- Render
+- Azure
+- Hugging Face Spaces
+
+That makes it easy for recruiters to open and test the project instantly.
+
+---
+
 ## 🚀 Future Scope
 
 - Finish the Power BI dashboard and connect it to `Branch_Performance` and `Company_Recruitment_Summary`
@@ -249,6 +445,8 @@ Placement-Prediction-College-Analytics
 - Integrate with college ERP or placement cell data
 - Add forecasting for year-wise placement trends
 - Extend explainability with SHAP-based feature analysis
+- Add a richer department dashboard for placement officers
+- Deploy the dashboard with Streamlit, Render, Azure, or Hugging Face Spaces
 
 ---
 
@@ -261,4 +459,3 @@ Placement-Prediction-College-Analytics
 ---
 
 > Disclaimer: Predictions from this project are for educational and analytical purposes only. They do not guarantee actual placement outcomes.
-

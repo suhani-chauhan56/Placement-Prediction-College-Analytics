@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score
 
 def setup_project():
     print("=== Step 1: Setting up Project Directory Structure ===")
-    dirs = ['data/raw', 'data/cleaned', 'sql', 'notebooks', 'models']
+    dirs = ['data/raw', 'data/cleaned', 'data/marts', 'sql', 'notebooks', 'models', 'dashboard', 'images', 'reports']
     for d in dirs:
         os.makedirs(d, exist_ok=True)
         print(f"Created directory: {d}")
@@ -155,16 +155,103 @@ def clean_and_process_data(df):
     # Convert Yes/No values into numerical form (internship_status -> has_internship, certification_status -> has_certification)
     df['has_internship'] = df['internship_status'].map({'Yes': 1, 'No': 0})
     df['has_certification'] = df['certification_status'].map({'Yes': 1, 'No': 0})
-    
+    df['placement_year'] = 2019 + ((df['student_id'] - 1) % 5)
+
     # Create derived features
     print("Engineering derived features...")
     df['total_skill_score'] = df['coding_skills'] + df['communication_skills']
     df['academic_performance_index'] = (df['cgpa'] * 10) - (df['backlogs'] * 5)
     df['employability_score'] = (df['total_skill_score'] * 0.4) + (df['cgpa'] * 0.4) + (df['internships'] * 2.0)
-    
+    df['placement_risk_score'] = (
+        100
+        - (df['cgpa'] * 6.0)
+        - (df['coding_skills'] * 4.0)
+        - (df['communication_skills'] * 3.0)
+        - (df['internships'] * 8.0)
+        - (df['project_count'] * 4.0)
+        - (df['certifications'] * 2.0)
+        + (df['backlogs'] * 12.0)
+    ).clip(0, 100).round(1)
+    df['risk_band'] = pd.cut(
+        df['placement_risk_score'],
+        bins=[-0.1, 35, 65, 100],
+        labels=['Low', 'Medium', 'High']
+    ).astype(str)
+    df['eligible_for_shortlist'] = ((df['cgpa'] >= 6.5) & (df['backlogs'] == 0)).astype(int)
+    df['student_intervention'] = np.where(
+        df['risk_band'] == 'High',
+        'Improve aptitude; complete one internship; increase DSA score',
+        np.where(
+            df['risk_band'] == 'Medium',
+            'Strengthen projects and communication',
+            'Maintain momentum and continue interview prep'
+        )
+    )
+    df['intervention_priority'] = np.where(
+        df['risk_band'] == 'High',
+        'Immediate',
+        np.where(df['risk_band'] == 'Medium', 'Monitor', 'Track')
+    )
+
     cleaned_path = 'data/cleaned/placement_data_cleaned.csv'
     df.to_csv(cleaned_path, index=False)
     print(f"Cleaned dataset saved to: {cleaned_path}")
+
+    flat_table_path = 'sql/placement_flat_table.csv'
+    df.to_csv(flat_table_path, index=False)
+    print(f"SQL-ready flat table saved to: {flat_table_path}")
+
+    branch_summary = (
+        df.groupby('branch', as_index=False)
+        .agg(
+            total_students=('student_id', 'count'),
+            placed_students=('placement_status', lambda s: (s == 'Placed').sum()),
+            avg_cgpa=('cgpa', 'mean'),
+            avg_package=('package_lpa', lambda s: s[s > 0].mean() if (s > 0).any() else 0),
+            avg_risk_score=('placement_risk_score', 'mean')
+        )
+    )
+    branch_summary['placement_rate'] = (branch_summary['placed_students'] / branch_summary['total_students'] * 100).round(2)
+
+    company_summary = (
+        df[df['placement_status'] == 'Placed']
+        .groupby('company_name', as_index=False)
+        .agg(
+            hires=('student_id', 'count'),
+            avg_package=('package_lpa', 'mean'),
+            avg_cgpa=('cgpa', 'mean'),
+            avg_employability=('employability_score', 'mean')
+        )
+        .sort_values('hires', ascending=False)
+    )
+
+    yearly_summary = (
+        df.groupby('placement_year', as_index=False)
+        .agg(
+            total_students=('student_id', 'count'),
+            placed_students=('placement_status', lambda s: (s == 'Placed').sum()),
+            avg_package=('package_lpa', lambda s: s[s > 0].mean() if (s > 0).any() else 0),
+            avg_risk_score=('placement_risk_score', 'mean')
+        )
+        .sort_values('placement_year')
+    )
+    yearly_summary['placement_rate'] = (yearly_summary['placed_students'] / yearly_summary['total_students'] * 100).round(2)
+
+    gender_summary = (
+        df.groupby('gender', as_index=False)
+        .agg(
+            total_students=('student_id', 'count'),
+            placed_students=('placement_status', lambda s: (s == 'Placed').sum()),
+            avg_package=('package_lpa', lambda s: s[s > 0].mean() if (s > 0).any() else 0)
+        )
+    )
+    gender_summary['placement_rate'] = (gender_summary['placed_students'] / gender_summary['total_students'] * 100).round(2)
+
+    branch_summary.to_csv('data/marts/branch_kpi_summary.csv', index=False)
+    company_summary.to_csv('data/marts/company_kpi_summary.csv', index=False)
+    yearly_summary.to_csv('data/marts/yearly_placement_trend.csv', index=False)
+    gender_summary.to_csv('data/marts/gender_placement_summary.csv', index=False)
+
     return df
 
 def train_models(df):
