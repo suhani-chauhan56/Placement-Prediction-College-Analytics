@@ -21,13 +21,7 @@ TABLE placement_clean_raw FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LI
     has_certification,
     total_skill_score,
     academic_performance_index,
-    employability_score,
-    placement_risk_score,
-    risk_band,
-    student_intervention,
-    intervention_priority,
-    eligible_for_shortlist,
-    placement_year
+    employability_score
 );
 
 SELECT COUNT(*) FROM placement_clean_raw;
